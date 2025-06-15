@@ -1,3 +1,35 @@
+# ACL'ler Artık Kabusunuz Değil: IP Filtrelemeyi Basit Benzetmelerle Anlayın
+
+Bu depo, ağ güvenliğinin temel taşlarından biri olan **Access Control List (ACL)** kavramlarını derinlemesine inceleyen kapsamlı bir rehber sunmaktadır. Bu rehber, ağ trafiğini filtreleme ve kaynaklara erişimi yönetme konularında hem teorik hem de pratik bilgiler sunar.
+
+**İçindekiler:**
+* [Access Control List (ACL) Nedir?](#access-control-list-acl-nedir)
+* [ACL Nasıl Çalışır?](#acl-nasıl-çalışır)
+* [ACL Türleri](#acl-türleri)
+    * [Standart ACL](#1-standart-acl)
+    * [Extended ACL](#2-extended-acl)
+    * [Named ACL](#3-named-acl)
+* [ACL Yazım Kuralları](#acl-yazım-kuralları)
+    * [ACL Yazarken 3 Temel Soru](#acl-yazarken-3-temel-soru)
+* [Günlük Hayattan Benzetme: “Bir Davete Gidiyorsunuz…”](#günlük-hayattan-benzetme-bir-davete-gidiyorsunuz)
+* [ACL'leri Router Arayüzlerine Uygulama](#aclleri-router-arayüzlerine-uygulama)
+* [Kural Sıralaması: “Önce Özel, Sonra Genel”](#kural-sıralaması-önce-özel-sonra-genel)
+* [Subnet Maskesi ve Wildcard Maskesi (ACL Bağlantılı Açıklama)](#subnet-maskesi-ve-wildcard-maskesi-acl-bağlantılı-açıklama)
+* [ACL Summarization (Kural Özetleme)](#acl-summarization-kural-özetleme-bitlerin-akıllı-dansı-ve-otobüs-güzergahı-benzetmesi)
+* [İleri Seviye Bilgi: ACL'lerde Gelişmiş Kullanımlar](#ileri-seviye-bilgi-aclerde-gelişmiş-kullanımlar)
+    * [Lock and Key (Dinamik ACL’ler)](#lock-and-key-dinamik-acller)
+    * [Reflexive ACL (Yansıtmalı Erişim Listeleri)](#reflexive-acl-yansıtmalı-erişim-listeleri)
+    * [Time-Based ACL (Zaman Tabanlı ACL)](#time-based-acl-zaman-tabanlı-acl)
+    * [ACL Sorun Giderme](#ipucu-acl-sorun-giderme)
+* [Sonuç](#sonuç)
+* [Kaynaklar](#kaynaklar)
+
+**Nasıl Okunur/Kullanılır:**
+* Makalenin tam metni bu depodaki `README.md` dosyasının kendisi içerisinde bulunmaktadır.
+* [isteğe bağlı: Cisco Packet Tracer uygulama dosyası (`.pkt` uzantılı) bu depoda mevcuttur. Uygulamayı incelemek için [Cisco Packet Tracer](https://www.netacad.com/courses/packet-tracer) yazılımına ihtiyacınız olacaktır.]
+
+---
+
 # 🎯 Access Control List (ACL) Nedir?
 
 Access Control List (ACL), ağ trafiğini filtrelemek için kullanılan kurallar bütünüdür. Router veya güvenlik duvarı gibi cihazlarda, belirli paketlerin geçişine izin verir (permit) veya engeller (deny).
@@ -11,6 +43,7 @@ Access Control List (ACL), ağ trafiğini filtrelemek için kullanılan kurallar
 ---
 
 ## 🧭 ACL Nasıl Çalışır?
+Peki, bu kurallar bir ağ cihazında tam olarak nasıl işler?
 
 ACL'ler, gelen (inbound) veya giden (outbound) trafiğe uygulanabilir. Bir paket ACL'den geçtiğinde, kurallar yukarıdan aşağıya sırayla kontrol edilir ve paket, ilk eşleştiği kurala göre işlenir. Eşleşme sağlanınca, listenin geri kalanına bakılmaz.
 
@@ -23,7 +56,7 @@ ACL'ler, gelen (inbound) veya giden (outbound) trafiğe uygulanabilir. Bir paket
 
 ## 🔍 ACL Türleri
 
-Üç ana ACL türü bulunur: Standart, Extended ve Named. Her birinin farklı yetenekleri ve kullanım alanları vardır.
+ACL'ler, farklı ihtiyaçlara ve filtreleme detaylarına göre çeşitli türlere ayrılır. Üç ana ACL türü bulunur: Standart, Extended ve Named. Her birinin farklı yetenekleri ve kullanım alanları vardır.
 
 ### 🟠 1. Standart ACL
 
@@ -51,6 +84,7 @@ ACL'ler, gelen (inbound) veya giden (outbound) trafiğe uygulanabilir. Bir paket
 ---
 
 ## 🛠️ ACL Yazım Kuralları
+ACL tanımlarken, kuralların etkinliği için belirli noktalara dikkat etmek gerekir:
 
 **✅ Önemli Noktalar:**
 
@@ -80,7 +114,7 @@ ACL tanımlarken şu üç soruyu kendine sormalısın:
 
 ## 🚍 Günlük Hayattan Benzetme: “Bir Davete Gidiyorsunuz…”
 
-ACL'lerin nasıl çalıştığını, bir davete otobüslerle gidiş senaryosu üzerinden açıklayalım:
+ACL'lerin karmaşık yapısını daha iyi kavramak için, gelin günlük hayattan basit bir senaryoya göz atalım: Bir davete otobüslerle gidiş senaryosu üzerinden ACL'lerin nasıl çalıştığını açıklayalım.
 
 ### 🔸 Standart ACL – “Davet Girişinde Kimlik Kontrolü”
 
@@ -92,7 +126,7 @@ ACL'lerin nasıl çalıştığını, bir davete otobüslerle gidiş senaryosu ü
 - Bu sefer kontrol otobüse binmeden önce, yani kaynağa çok yakın bir yerde yapılır. Sadece kim olduğunuz değil (kaynak IP), nereye gideceğiniz (hedef IP), ne için gittiğiniz (protokol) ve biniş saatiniz gibi detaylı bilgiler (port numarası) kontrol edilir.  
 - Davetli değilseniz veya kurallara uymuyorsanız (örneğin, davete uygun olmayan bir ulaşım şekliyle geliyorsanız), direkt otobüse alınmazsınız.  
 - **Sonuç:** Trafik hiç yola çıkmaz, gereksiz ağ yükü ve kaynak israfı önlenir. Ağ performansı artar.  
-- **Dikkat:** Ancak yanlış bir kural tanımlanmışsa, davet harici bir yere gidişinizde bile (örneğin, başka bir durakta inmek istiyorsanız) otobüse alınmayabilirsiniz. Yani, yanlış yapılandırılmış bir Extended ACL meşru trafiği de engelleyebilir.
+- **Dikkat:** Ancak yanlış bir kural tanımlanmışsa, davet harici bir yere gidişinizde bile (örneğin, başka bir durakta inmek istiyorsanız) otobüse alınmayabilirsiniz. Bu nedenle, yanlış yapılandırılmış bir Extended ACL meşru trafiği de engelleyebilir.
 
 ### 🟩 Named ACL – “İsimli Davet Listesi”
 
@@ -109,12 +143,6 @@ ACL'ler router arayüzlerine inbound veya outbound olarak uygulanır. Performans
 |----------------|-----------------------|------------------------------------------------------------------------------------------|
 | Standart ACL   | Hedefe Yakın (Outbound)| Sadece kaynak IP'ye bakar, paketin hedefine ulaştığı veya çıkacağı noktada filtrelemek daha uygun olabilir. |
 | Extended ACL   | Kaynağa Yakın (Inbound)| Detaylı filtreleme yapar, gereksiz trafiği ağa girmeden veya yolculuğunun başında engellemek performansı artırır. |
-
----
-
-## 🎫 Benzetme: Otobüse binmeden bilet ve davetiye kontrolü yapmak
-
-İçeride yaşanacak karmaşayı ve performans kaybını önler. Yola çıktıktan sonra kontrol etmek, gereksiz yere yol kat edilmesine neden olur.
 
 ---
 
@@ -192,7 +220,7 @@ ACL (Access Control List) gibi IP filtreleme sistemlerinde **subnet maskesi değ
 Çünkü:
 
 ✅ Daha esnek  
-✅ Daha detaylı filtreleme yapılabilir  
+✅ Daha hassas filtreleme yapılabilir
 ✅ Belirli IP desenlerine göre kurallar tanımlanabilir
 
 ---
@@ -303,4 +331,69 @@ Otobüsler Adana’dan yola çıkıp farklı şehirlere (İstanbul, Edirne, Bolu
 ACL summarization, IP adreslerinin ortak bit dizilerini bulup bunları tek bir blokta toplayarak kural listesini sadeleştiren kritik bir ağ prensibidir. Bu prensibi hem **“bitlerin akıllı dansı”** gibi teknik bir süreç, hem de **otobüslerin ortak güzergahı** gibi günlük hayattan bir benzetmeyle kolayca anlayabiliriz.
 
 🚀 Sonuç: Daha verimli, daha anlaşılır ve daha performanslı ağlar!
+
+
+---
+
+## 🧠 İleri Seviye Bilgi: ACL'lerde Gelişmiş Kullanımlar (Dinamik, Yansıtmalı, Zaman Tabanlı)
+
+> Bu bölüm, CCNA seviyesinin ötesinde meraklısına yönelik kısa özet bilgiler içerir.
+
+---
+
+### 🔐 Lock and Key (Dinamik ACL’ler)
+
+**Tanım:** Kullanıcının kimliğini doğruladıktan sonra geçici olarak erişim izni veren ACL yapısıdır.  
+**Senaryo:** Bir teknik destek personeli VPN ile kuruma bağlandığında, yalnızca kimliğini doğruladıktan sonra (örneğin Telnet ile giriş yaptıktan sonra) belirli sistemlere erişmesine izin verilir.  
+**Kullanım Yeri:** Güvenlik hassasiyeti yüksek sistemlerde, geçici erişim ihtiyaçlarında.  
+⚠️ **Not:** CCNA dışı bir konudur; CCNP Security veya CCNA Security düzeyinde işlenir.
+
+---
+
+### 🔁 Reflexive ACL (Yansıtmalı Erişim Listeleri)
+
+**Tanım:** İçeriden başlatılan bir bağlantıya dışarıdan gelen yanıtları otomatik olarak izin veren dinamik bir ACL yapısıdır.  
+**Senaryo:** İç ağdan web sitesine çıkış yapılınca, dış sunucudan dönen verinin yeniden izin gerektirmemesi için kullanılır.  
+**Avantajı:** Dışarıdan doğrudan bağlantıları engellerken, içeriden başlatılan bağlantılara geri dönüşe izin verir.
+
+---
+
+### ⏰ Time-Based ACL (Zaman Tabanlı ACL)
+
+**Tanım:** Belirli zaman aralıklarında geçerli olan ACL kurallarıdır.  
+**Senaryo:** Personel bilgisayarlarının yalnızca mesai saatlerinde internete çıkabilmesi.  
+**Kullanım:** `time-range` tanımı yapılarak erişim kuralları zamana göre şekillendirilir.
+
+---
+### 🧪 İpucu: ACL Sorun Giderme
+
+- **ACL doğru arayüze uygulanmış mı?**
+- **`in` mi `out` mu doğru ayarlanmış mı?**
+- **Kuralların sırası mantıklı mı?**
+
+Tüm bunları aşağıdaki komutlarla analiz edebilirsin:
+
+```bash
+show access-lists
+show ip interface [interface-name]
+debug ip packet
+```
+
+---
+
+## 🏁 Sonuç: Güvenli Ağların Vazgeçilmezi ACL
+
+Bugün, ağ güvenliğinin temel direklerinden biri olan **Access Control List (ACL)** kavramını derinlemesine inceledik. ACL'ler, ağ trafiğini belirlediğimiz kurallara göre yöneterek, istenmeyen erişimi engeller, değerli kaynakları korur ve ağ performansını optimize eder. Standart, Extended ve Named ACL türlerinin sunduğu farklı esneklik seviyelerini anlamak ve Wildcard Mask gibi araçları doğru kullanmak, ağ yöneticileri için büyük bir güçtür.
+
+Unutmayın ki her ACL'in sonundaki "implicit deny any" kuralı, açıkça izin verdiğiniz dışındaki her şeyi engellediği için, kurallarınızı dikkatle belirlemek hayati önem taşır. ACL Summarization gibi tekniklerle kural listelerinizi sadeleştirmek ve yönetim yükünü azaltmak ise daha verimli ve yönetilebilir ağlar inşa etmenizi sağlar.
+
+Bu rehberi hazırlarken ben de ACL'ler konusundaki bilgilerimi tekrar gözden geçirme ve pekiştirme fırsatı buldum. Umarım sizin için de faydalı olmuştur. Ağ güvenliği dinamik bir alan ve ACL'ler bu dinamizmin önemli bir parçası. Aklınıza takılan bir nokta olursa veya ACL deneyimlerinizden paylaşmak istedikleriniz varsa, yorumlarda sohbet etmekten ve geri bildirimlerinizi almaktan mutluluk duyarım. Okuduğunuz için çok teşekkür ederim!
+
+---
+
+**Kaynaklar:**
+
+* [Mürşide Öden]. (17.06.2025). *ACL'ler Artık Kabusunuz Değil: IP Filtrelemeyi Basit Benzetmelerle Anlayın*.
+* Cisco Systems. (2023). *Configure and Filter IP Access Lists*. Erişim Adresi: [https://www.cisco.com/c/en/us/support/docs/security/ios-firewall/23602-confaccesslists.html](https://www.cisco.com/c/en/us/support/docs/security/ios-firewall/23602-confaccesslists.html).
+
 
