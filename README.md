@@ -392,7 +392,7 @@ Bu bölümde, ağ güvenliğinin temel taşlarından olan **Access Control List 
 > Bu ACL uygulamaları, daha önce detaylarını paylaştığımız [**Subnetting**](https://github.com/MrsdOdn/subnetting-rehberi)
  yapılandırmalarının üzerine inşa edilmiştir. Bu nedenle, ACL'leri uygulamadan önce ağın temel IP adresleme ve yönlendirme ayarlarının yapılmış olması gerekmektedir.
 
-![ACL Topolojisi - Packet Tracer Uygulaması](packetTracer.png)
+![ACL Topolojisi - Packet Tracer Uygulaması](packetTracer(2).png)
 
 ---
 
