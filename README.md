@@ -23,6 +23,7 @@ Bu depo, ağ güvenliğinin temel taşlarından biri olan **Access Control List 
     * [Reflexive ACL (Yansıtmalı Erişim Listeleri)](#reflexive-acl-yansıtmalı-erişim-listeleri)
     * [Time-Based ACL (Zaman Tabanlı ACL)](#time-based-acl-zaman-tabanlı-acl)
     * [ACL Sorun Giderme](#ipucu-acl-sorun-giderme)
+* [Packet Tracer Uygulaması Anlatımı](#packetTracer)
 * [Sonuç](#sonuç)
 * [Kaynaklar](#kaynaklar)
 
