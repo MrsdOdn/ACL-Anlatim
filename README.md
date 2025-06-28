@@ -2,6 +2,8 @@
 
 Bu depo, ağ güvenliğinin temel taşlarından biri olan **Access Control List (ACL)** kavramlarını derinlemesine inceleyen kapsamlı bir rehber sunmaktadır. Bu rehber, ağ trafiğini filtreleme ve kaynaklara erişimi yönetme konularında hem teorik hem de pratik bilgiler sunar.
 
+![ACL Kapak](aclKapak.png)
+
 **İçindekiler:**
 * [Access Control List (ACL) Nedir?](#access-control-list-acl-nedir)
 * [ACL Nasıl Çalışır?](#acl-nasıl-çalışır)
@@ -313,6 +315,7 @@ Otobüsler Adana’dan yola çıkıp farklı şehirlere (İstanbul, Edirne, Bolu
 - Kurallar daha kısa olur
 - Yönlendirici daha az işlem yapar
 
+![ACL-summarization](summarization.png)
 ---
 
 ## 🎯 Neden Özetleme Yapıyoruz?
@@ -374,10 +377,141 @@ ACL summarization, IP adreslerinin ortak bit dizilerini bulup bunları tek bir b
 Tüm bunları aşağıdaki komutlarla analiz edebilirsin:
 
 ```bash
-show access-lists
-show ip interface [interface-name]
-debug ip packet
+show access-lists       # Tanımlı tüm ACL'leri görüntüle
+show ip interface X     # Hangi arayüzde hangi ACL aktif?
+debug ip packet         # ACL'e takılan paketleri canlı izle
 ```
+
+---
+# 🧰 Packet Tracer Uygulaması: ACL Senaryoları
+
+Bu bölümde, ağ güvenliğinin temel taşlarından olan **Access Control List (ACL)** kavramını somutlaştırmak için tasarladığımız Packet Tracer uygulamasından bahsedeceğiz. Aşağıda yer alan senaryolar ve bunlara ait Cisco CLI komutları, ACL'lerin ağ trafiğini nasıl filtrelediğini ve kaynaklara erişimi nasıl yönettiğini pratik olarak anlamanıza yardımcı olacaktır.
+
+> Bu ACL uygulamaları, daha önce detaylarını paylaştığımız [**Subnetting**](https://github.com/MrsdOdn/subnetting-rehberi)
+ yapılandırmalarının üzerine inşa edilmiştir. Bu nedenle, ACL'leri uygulamadan önce ağın temel IP adresleme ve yönlendirme ayarlarının yapılmış olması gerekmektedir.
+
+![ACL Topolojisi - Packet Tracer Uygulaması](packetTracer.png)
+
+---
+
+## 🧪 ACL Uygulama Senaryoları ve Komutları
+
+Aşağıda, belirli güvenlik hedeflerine yönelik olarak tasarlanmış üç farklı **ACL senaryosu** ve bunların Packet Tracer üzerinde uygulanan komutları bulunmaktadır. Her senaryo, ACL'lerin farklı türlerini ve uygulama yaklaşımlarını göstermektedir.
+
+---
+
+### 🔹 Senaryo 1: Standart ACL – Belirli Bir LAN'dan Başka Bir LAN'a Erişimin Engellenmesi (Kaynak Odaklı Filtreleme)
+
+**Amaç:**  
+LAN1'deki **PC0**'ın (IP: `172.30.1.130`), LAN5'teki hiçbir cihaza (yani `172.30.1.96/27` ağına) erişmesini engellemektir. Bu, kaynağı belirli bir IP adresi olan trafiği engellemek için **Standart ACL** kullanımına örnektir.
+
+**Bilgiler:**
+- **Hedef Ağ:** `LAN5` ağı (`172.30.1.96/27`) – Örnek IP'ler: `172.30.1.97`, `172.30.1.98`...
+- **Kaynak Cihaz:** `LAN1`'deki `PC0` (`172.30.1.130`)
+- **Uygulanacak Router:** `R2` (Çünkü LAN5'e giden trafik bu router'dan geçiyor)
+- **ACL Yönü:** `out` (R2'den LAN5'e doğru çıkan trafik)
+
+---
+
+#### 💻 Uygulanan Komutlar (R2 üzerinde)
+```bash
+R2>enable
+R2#configure terminal
+R2(config)#access-list 10 deny host 172.30.1.130
+R2(config)#access-list 10 permit any
+R2(config)#interface gigabitEthernet0/1
+R2(config-if)#ip access-group 10 out
+R2(config-if)#do write memory
+```
+---
+#### ✅ Doğrulama
+
+- `PC0`'dan (`172.30.1.130`) `LAN5`'teki bir cihaza (örneğin `172.30.1.97`) **ping** atarak erişimin engellendiğini doğrulayın.
+- Diğer LAN'lardaki cihazların `LAN5`'e erişiminin **devam ettiğini** test edin.
+---
+
+### 🔹 Senaryo 2: Extended ACL – Belirli Bir Cihaza Yönetim Erişimi Kısıtlaması (Protokol ve Port Odaklı Filtreleme)
+
+**Amaç:**  
+`PC0`'ın (LAN1 – `172.30.1.130`), sadece **Telnet (Port 23)** kullanarak `R1`'e (`172.30.1.129`) yönetim erişimi olmasına izin vermek ve başka hiçbir kaynaktan `R1`'e Telnet erişimini engellemektir. Bu senaryo, **Extended ACL**'lerin protokol ve port bazında nasıl detaylı filtreleme yaptığını gösterir.
+
+**Bilgiler:**
+- **Hedef Cihaz:** `R1` router'ı (`172.30.1.129`)
+- **Kaynak Cihaz:** `PC0` (`172.30.1.130`)
+- **Protokol/Port:** TCP Telnet (Port 23)
+- **Uygulanacak Router:** `R1` (Yönetim trafiği bu cihaza geliyor)
+- **ACL Yönü:** `in` (R1'e gelen trafik)
+- **ACL Türü:** Named Extended ACL  
+  > Not: `access-class` komutu line vty altında kullanılacağı için isimli ACL önerilir.
+
+---
+
+#### 💻 Uygulanan Komutlar (R1 üzerinde)
+```bash
+R1>enable
+R1#configure terminal
+R1(config)#access-list 100 permit tcp host 172.30.1.130 any eq telnet
+R1(config)#access-list 100 deny tcp any any eq telnet
+R1(config)#access-list 100 permit ip any any
+R1(config)#line vty 0 15
+R1(config-line)#access-class 100 in
+R1(config-line)#login
+R1(config-line)#do write memory
+```
+---
+
+#### ✅ Doğrulama
+
+- `PC0`'dan (`172.30.1.130`) `R1`'e **Telnet** denemesi (`telnet 172.30.1.129`) yaparak **başarılı** olduğunu gözlemleyin.
+- Başka bir PC'den `R1`'e Telnet denemesi yaparak **engellendiğini** doğrulayın.
+- Diğer trafik türlerinin (örneğin **ping**) her iki PC'den de `R1`'e ulaştığını kontrol edin.
+---
+### Senaryo 3: Named Extended ACL - Sunucuya Detaylı Erişim Kısıtlaması (Çoklu Kriter Filtreleme)
+
+**Amaç:**  
+Ağdaki bir sunucuya (172.30.1.147) aşağıdaki kurallara göre erişim kısıtlaması uygulamaktır:
+
+- Tüm ağlardan HTTPS (Port 443) erişimine izin verilecek.  
+- LAN5'ten (172.30.1.96/27 ağı) gelen cihazlar, sunucuya her türde iletişim kurabilecek.  
+- Tüm ağlardan gelen HTTP (Port 80) erişimi engellenecek (varsayılan implicit deny yerine açıkça deny ile).  
+- Diğer tüm erişimler izinli olacak.
+
+Bu senaryo, Named Extended ACL'in esnekliğini ve birden fazla kriteri aynı anda nasıl uygulayabildiğini göstermektedir.
+
+**Bilgiler:**  
+- Hedef Sunucu: 172.30.1.147  
+- Uygulanacak Router: R3 (Sunucunun bağlı olduğu router)  
+- ACL Yönü: in (R3'e gelerek sunucuya ulaşacak trafik)  
+- ACL Türü: Named Extended ACL (sunucu_erisimi)
+
+---
+
+**Uygulanan Komutlar (R3 üzerinde):**
+
+```bash
+R3>enable
+R3#configure terminal
+R3(config)#ip access-list extended sunucu_erisimi
+R3(config-ext-nacl)#remark Tum LAN'lardan HTTPS istegine izin ver.
+R3(config-ext-nacl)#permit tcp any host 172.30.1.147 eq 443
+R3(config-ext-nacl)#remark LAN5'ten gelen tum isteklere izin ver. (Wildcard mask 0.0.0.31 for /27)
+R3(config-ext-nacl)#permit ip 172.30.1.96 0.0.0.31 host 172.30.1.147
+R3(config-ext-nacl)#remark Tum LAN'lardan HTTP istegini engelle.
+R3(config-ext-nacl)#deny tcp any host 172.30.1.147 eq 80
+R3(config-ext-nacl)#remark Diger tum erisimlere izin ver.
+R3(config-ext-nacl)#permit ip any any
+R3(config-ext-nacl)#exit
+R3(config)#interface serial 0/0/1
+R3(config-if)#ip access-group sunucu_erisimi in
+R3(config-if)#do write memory
+
+```
+### Doğrulama
+
+- Herhangi bir PC'den sunucuya (172.30.1.147) HTTPS trafiği (örneğin, bir web tarayıcısından HTTPS ile erişim denemesi) yaparak başarılı olduğunu doğrulayın.
+- LAN5'teki bir PC'den sunucuya ping atarak ve diğer portlara (örneğin Telnet) erişim denemesi yaparak başarılı olduğunu doğrulayın.
+- LAN5 dışındaki bir PC'den sunucuya HTTP (Port 80) erişimi denemesi yaparak engellendiğini teyit edin.
+- LAN5 dışındaki bir PC'den sunucuya ICMP (ping) gibi diğer trafik türlerinin ulaşabildiğini kontrol edin.
 
 ---
 
