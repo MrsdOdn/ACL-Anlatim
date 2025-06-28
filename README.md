@@ -49,6 +49,7 @@ Access Control List (ACL), ağ trafiğini filtrelemek için kullanılan kurallar
 Peki, bu kurallar bir ağ cihazında tam olarak nasıl işler?
 
 ACL'ler, gelen (inbound) veya giden (outbound) trafiğe uygulanabilir. Bir paket ACL'den geçtiğinde, kurallar yukarıdan aşağıya sırayla kontrol edilir ve paket, ilk eşleştiği kurala göre işlenir. Eşleşme sağlanınca, listenin geri kalanına bakılmaz.
+![ACL](acl.png)
 
 > **📌 Kritik Bilgi:**  
 > Her ACL'in sonunda sizin yazmadığınız ancak otomatik olarak var olan bir "implicit deny any" (varsayılan olarak her şeyi reddet) kuralı bulunur. Bu kural, listedeki hiçbir kurala uymayan tüm trafiğin engelleneceği anlamına gelir. Bu yüzden, izin vermek istediğiniz trafiği açıkça `permit` komutuyla belirtmelisiniz.  
